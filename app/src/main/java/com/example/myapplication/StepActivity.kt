@@ -16,11 +16,11 @@ class StepActivity: AppCompatActivity() {
         binding.today.setOnClickListener {
             startActivity(Intent(this,TodayActivity::class.java))
         }
-        binding.tomorrow.setOnClickListener {
-            startActivity(Intent(this,TomorrowActivity::class.java))
-        }
-        binding.someday.setOnClickListener {
-            startActivity(Intent(this,SomedayActivity::class.java))
-        }
+//        binding.tomorrow.setOnClickListener {
+//            startActivity(Intent(this,TomorrowActivity::class.java))
+//        }
+//        binding.someday.setOnClickListener {
+//            startActivity(Intent(this,SomedayActivity::class.java))
+//        }
     }
 }

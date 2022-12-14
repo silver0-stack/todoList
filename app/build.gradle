@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myapplication"
-        minSdk 21
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -43,7 +43,7 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.4.3'
     implementation 'androidx.room:room-ktx:2.4.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
-    kapt 'org.xerial:sqlite-jdbc:3.34.0'
+    kapt 'org.xerial:sqlite-jdbc:3.36.0'
 
     //viewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'

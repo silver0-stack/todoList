@@ -7,19 +7,9 @@
     android:orientation="vertical"
     android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/back"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/ic_baseline_arrow_back_ios_24" />
 
-    <ImageView
-        android:id="@+id/emoji"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginBottom="30dp"
-        android:src="@drawable/ic_launcher_foreground" />
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,14 +26,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="오늘"
+                android:text="노트"
                 android:layout_marginEnd="10dp"
-                android:textSize="30sp" />
+                android:textSize="20sp" />
 
             <ImageView
                 android:id="@+id/tod_add"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_baseline_add_circle_24"
                 app:tint="#BDBCBC"
@@ -51,16 +41,14 @@
         </LinearLayout>
 
 
-        <TextView
-            android:id="@+id/tod_num"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:layout_gravity="center"
-            android:text="n"
-            android:textSize="30sp" />
+
     </LinearLayout>
 
+    <androidx.appcompat.widget.SearchView
+        app:queryBackground="@drawable/searchview_background"
+        app:queryHint="검색어를 입력하시오"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tod_list"

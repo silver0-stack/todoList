@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.example.myapplication.databgase.tod_TodoDatabase
-import com.example.myapplication.dto.tod_Todo
+import com.example.myapplication.dto.Todo
 
 private const val DATABASE_NAME = "todo-database.db"
 
@@ -19,15 +19,15 @@ class tod_TodoRepository private constructor(context: Context) {
 
     private val todoDao = database.todoDao()
 
-    fun list(): LiveData<MutableList<tod_Todo>> = todoDao.list()
+    fun list(): LiveData<MutableList<Todo>> = todoDao.list()
 
-    fun getTodo(id: Long): tod_Todo = todoDao.selectOne(id)
+    fun getTodo(id: Long): Todo = todoDao.selectOne(id)
 
-    fun insert(dto: tod_Todo) = todoDao.insert(dto)
+    fun insert(dto: Todo) = todoDao.insert(dto)
 
-    suspend fun update(dto: tod_Todo) = todoDao.update(dto)
+    suspend fun update(dto: Todo) = todoDao.update(dto)
 
-    fun delete(dto: tod_Todo) = todoDao.delete(dto)
+    fun delete(dto: Todo) = todoDao.delete(dto)
 
     //single-ton
     //클래스가 생성될 때 메모리에 적재되면서 동시에 생성하는 객체로, 데이터베이스 생성 및 초기화를 담당

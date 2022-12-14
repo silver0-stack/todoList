@@ -2,23 +2,23 @@ package com.example.myapplication.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.myapplication.dto.tod_Todo
+import com.example.myapplication.dto.Todo
 
 @Dao
-interface tod_TodoDao {
+interface TodoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(dto: tod_Todo)
+    fun insert(dto: Todo)
 
     @Query("select * from tod_todoTable")
-    fun list():LiveData<MutableList<tod_Todo>>
+    fun list():LiveData<MutableList<Todo>>
 
     @Query("select * from tod_todoTable where id = (:id)")
-    fun selectOne(id:Long):tod_Todo
+    fun selectOne(id:Long):Todo
 
     @Update
-    suspend fun update(dto:tod_Todo)
+    suspend fun update(dto:Todo)
 
     @Delete
-    fun delete(dto:tod_Todo)
+    fun delete(dto:Todo)
 }
