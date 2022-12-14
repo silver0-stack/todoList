@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.dto.Todo
-import com.example.myapplication.repository.tod_TodoRepository
+import com.example.myapplication.repository.TodoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 class TodoViewModel: ViewModel() {
 
     val todTodoList:LiveData<MutableList<Todo>>
-    private val todoRepository: tod_TodoRepository =tod_TodoRepository.get()
+    private val todoRepository: TodoRepository =TodoRepository.get()
 
     init {
         todTodoList=todoRepository.list()

@@ -1,4 +1,4 @@
-package com.example.myapplication.databgase
+package com.example.myapplication.dto.databgase
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
