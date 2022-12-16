@@ -10,6 +10,4 @@ class Todo(
     @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) var id: Long = 0,
     @ColumnInfo(name = "timestamp") val stamp: String,
     @ColumnInfo(name = "todo") val todo: String,
-): Serializable {
-
-}
+): Serializable

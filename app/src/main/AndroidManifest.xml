@@ -18,10 +18,20 @@
             android:name=".TodayActivity"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
+        <activity android:name=".MemoActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TodayActivity"/>
+        </activity>
+        <activity android:name=".SearchActivity"/>
+
     </application>
     
 

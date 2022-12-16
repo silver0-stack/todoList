@@ -1,16 +1,31 @@
 package com.example.myapplication.adapter
 
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
+import com.example.myapplication.MemoActivity
 import com.example.myapplication.dto.Todo
+import kotlinx.coroutines.delay
+import java.util.*
+import kotlin.collections.ArrayList
 
-class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
+class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>(){
     private var list = mutableListOf<Todo>()
+    var onItemLongClick: ((Todo) -> Unit)? = null
+    var onItemClick: ((Todo) -> Unit)? = null
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -21,8 +36,23 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
             timestamp.text = data.stamp
             content.text = data.todo
 
+//            itemView.setOnClickListener {
+//                itemClickListner.onClick(it, layoutPosition, list[layoutPosition].id)
+//            }
         }
 
+        init {
+
+            itemView.setOnClickListener {
+                onItemClick?.invoke(list[adapterPosition])
+                return@setOnClickListener
+            }
+
+            itemView.setOnLongClickListener {
+                onItemLongClick?.invoke(list[adapterPosition])
+                return@setOnLongClickListener true
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
@@ -33,11 +63,6 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
         holder.onBind(list[position])
-
-//        holder.itemView.setOnLongClickListener {
-//            onItemClick!!.invoke(list[position])
-//           //Toast.makeText(it.context, "$position 아이템 클릭!", Toast.LENGTH_SHORT).show()
-//        }
     }
 
     override fun getItemCount(): Int {
@@ -50,13 +75,87 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
     }
 
 
-    interface ItemLongClickListener {
-        fun onClick(view: View, position: Int, itemId: Long)
-    }
 
-    private lateinit var itemLongClickListener: ItemLongClickListener
+//    interface ItemClickListener {
+//        fun onClick(view: View, position: Int, itemId: Long)
+//    }
+//
+//    private lateinit var itemClickListner: ItemClickListener
+//
+//    fun setItemClickListener(itemClickListener: ItemClickListener) {
+//        this.itemClickListner = itemClickListener
+//    }
 
-    fun setLongClickListener(itemLongClickListener: ItemLongClickListener) {
-        this.itemLongClickListener = itemLongClickListener
-    }
+//    override fun getFilter(): Filter {
+//
+//        return exampleFilter
+//    }
+//
+//    private val exampleFilter: Filter = object : Filter() {
+//        //background Thread 에서 자동으로
+//        override fun performFiltering(constraint: CharSequence?): FilterResults {
+//
+//            val filterString = constraint.toString()
+//
+//            //검색이 필요없을 경우를 위해 원본 배열을 복제
+//            val filteredList = mutableListOf<Todo>()
+//
+//            val result = FilterResults()
+//
+//            Log.d(TAG, "검색값 : $constraint")
+//
+//            //공백 제외 아무런 값이 없을 경우 -> 원본 배열
+//            if (filterString.trim { it <= ' ' }.isEmpty()) {
+//
+//                result.values = list
+//                result.count = list.size
+//
+//                return result
+//            }
+//
+//            //값이 있을 경우
+//            else {
+//                val filterPattern =
+//                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
+//
+//                for (item in list) {
+//                    //filter 대상 setting
+//                    if (item.todo.contains(filterString)) {
+//                        Log.d(TAG, "검색필터: ${item.todo}")
+//                        filteredList.add(item)
+//
+//                        Log.d(TAG, "검색 add list:  $filteredList")
+//                        result.values = filteredList
+//                        result.count = filteredList.size
+//
+//
+//                    } else {
+//                        Toast.makeText(context, " 검색 필터링 결과 무", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            }
+//
+////            result.values = filteredList
+////            result.count=filteredList.size
+////
+////            Log.d(TAG,"검색 결과1: ${result.values}")
+////            Log.d(TAG,"검색 결과2: $result")
+////
+////            return result
+//            Log.d(TAG, "검색 결과1: ${result.values}")
+//            Log.d(TAG, "검색 결과2: $result")
+//
+//            return result
+//        }
+//
+//        //UI Thread 에서 자동으로
+//        @SuppressLint("NotifyDataSetChanged")
+//        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+//            list.clear()
+//            list.addAll(results?.values as ArrayList<Todo>)
+//            notifyDataSetChanged()
+//        }
+//
+//    }
+
 }
