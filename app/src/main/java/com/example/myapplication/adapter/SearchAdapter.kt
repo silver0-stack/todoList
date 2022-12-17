@@ -15,7 +15,8 @@ import com.example.myapplication.R
 import com.example.myapplication.dto.Todo
 import kotlin.collections.ArrayList
 
-class SearchAdapter(val context: Context, val list: MutableList<Todo>) : RecyclerView.Adapter<SearchAdapter.TodoViewHolder>(),
+class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
+    RecyclerView.Adapter<SearchAdapter.TodoViewHolder>(),
     Filterable {
 
     var onItemLongClick: ((Todo) -> Unit)? = null
@@ -42,19 +43,15 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) : Recycle
 
 
             //검색이 필요없을 경우를 위해 원본 배열을 복제
-            val filteredList=ArrayList<Todo>()
+            val filteredList = ArrayList<Todo>()
 
             //공백제외 아무런 값이 없을 경우 -> 원본 배열
-            if(filterString==" "){
-                filteredTodo.addAll(list)
-                results.values = filteredTodo
-                results.count = filteredTodo.size
-                return results
-            }
-            else if (filterString.isNullOrEmpty()) {
 
-                results.values = list
-                results.count = list.size
+            TODO("서치뷰가 비었을 때 리스트가 다 지워지는 이슈")
+            if (filterString.isEmpty()) {
+
+                results.values = filteredTodo
+                results.count =filteredTodo.size
                 return results
 
                 //공백제외 2글자 이하인 경우 -> 이름으로만 검색
