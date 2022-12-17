@@ -1,14 +1,13 @@
 package com.example.myapplication
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.appcompat.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -20,9 +19,13 @@ import com.example.myapplication.adapter.TodoAdapter
 import com.example.myapplication.databinding.ActivityTodayBinding
 import com.example.myapplication.dto.Todo
 import com.example.myapplication.viewmodel.TodoViewModel
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.reflect.Type
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -35,6 +38,7 @@ class TodayActivity : AppCompatActivity() {
     val current = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("a h:mm")
     val timestamp = current.format(formatter)
+
 
 
     private val requestActivity =
@@ -65,7 +69,7 @@ class TodayActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        val searchIntent = Intent(this, SearchActivity::class.java)
+        val searchIntent =Intent(this,SearchActivity::class.java)
 
 
         todoViewModel = ViewModelProvider(this)[TodoViewModel::class.java]
@@ -76,39 +80,24 @@ class TodayActivity : AppCompatActivity() {
         todoViewModel.todTodoList.observe(this) {
             todoAdapter.update(it)
 
-            //서치액티비티로 리스트 전달
-            searchIntent.putExtra("list", it as ArrayList<Todo>)
+
+//            // 1) JsonArray
+//            val jsonArr = JSONArray()
+//            for(i in it){
+//                jsonArr.put(i)
+//            }
+//
+//            // 2) toString()
+//            val result=jsonArr.toString()
+//
+//            // 3) SharedPreferences
+//            val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return@observe
+//            with (sharedPref.edit()) {
+//                putString("search_list", result)
+//                apply()
+//            }
         }
 
-
-        binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.add -> {
-                    val todo = Todo(0, timestamp, "")
-                    CoroutineScope(Dispatchers.IO).launch {
-                        /*viewModel -> todoRepository -> todoDao 순으로 타고 들어가 데이터베이스에 저장*/
-                        todoViewModel.insert(todo)
-                    }
-                    Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
-
-                    return@setOnMenuItemClickListener true
-
-                }
-                R.id.search -> {
-                    Toast.makeText(this, "search menu clicked!", Toast.LENGTH_SHORT).show()
-                    startActivity(searchIntent)
-
-                    return@setOnMenuItemClickListener true
-                }
-
-                else -> {
-                    return@setOnMenuItemClickListener false
-                }
-
-            }
-
-
-        }
 
 
         todoAdapter = TodoAdapter(this)
@@ -211,12 +200,33 @@ class TodayActivity : AppCompatActivity() {
 
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.add -> {
+                val todo = Todo(0, timestamp, "")
+                CoroutineScope(Dispatchers.IO).launch {
+                                /*viewModel -> todoRepository -> todoDao 순으로 타고 들어가 데이터베이스에 저장*/
+                                todoViewModel.insert(todo)
+                            }
+                            Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
 
-    private fun handleIntent(intent: Intent?) {
+                            true
+                        }
+                        R.id.search -> {
+                            Toast.makeText(this, "search menu clicked!", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this,SearchActivity::class.java))
+                            true
+                        }
 
-        if (Intent.ACTION_SEARCH == intent!!.action) {
-            val query = intent.getStringExtra(SearchManager.QUERY)
-            //use the query to search your data somehow
+                        else -> super.onOptionsItemSelected(item)
+                    }
+                }
+
+                private fun handleIntent(intent: Intent?) {
+
+                    if (Intent.ACTION_SEARCH == intent!!.action) {
+                        val query = intent.getStringExtra(SearchManager.QUERY)
+                        //use the query to search your data somehow
         }
     }
 
@@ -226,12 +236,12 @@ class TodayActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.menu, menu)
+                val inflater: MenuInflater = menuInflater
+                inflater.inflate(R.menu.menu, menu)
 
-        super.onCreateOptionsMenu(menu)
+                super.onCreateOptionsMenu(menu)
 
-        val searchItem: MenuItem? = menu?.findItem(R.id.search)
+                val searchItem: MenuItem? = menu?.findItem(R.id.search)
 
 //
 //
@@ -283,8 +293,9 @@ class TodayActivity : AppCompatActivity() {
 //
 //            })
 //        }
-        return false
-    }
+                return false
+            }
+
 
 
 }
