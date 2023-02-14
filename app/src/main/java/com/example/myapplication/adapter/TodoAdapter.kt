@@ -1,5 +1,6 @@
 package com.example.myapplication.adapter
 
+import MyTouchHelperCallback
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -22,165 +23,66 @@ import kotlinx.coroutines.delay
 import java.util.*
 import kotlin.collections.ArrayList
 
-class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>(){
+class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>(),MyTouchHelperCallback.OnItemMoveListener{
     private var list = mutableListOf<Todo>()
     var copylist = ArrayList<Todo>()
     var onItemLongClick: ((Todo) -> Unit)? = null
     var onItemClick: ((Todo) -> Unit)? = null
+    private var onItemDragListener: MyTouchHelperCallback.ItemStartDragListener? = null
+   //private lateinit var dragListener: OnStartDragListener
 
-    var filteredTodo = ArrayList<Todo>()
+    var initList: ArrayList<Todo> = ArrayList()
+    private var mSampleList: ArrayList<Todo> = ArrayList()
 
-    //var exampleFilter = SearchAdapter.ExampleFilter()
-
-//    init {
-//        //원본 리스트를 다 참조해야 함함
-//        filteredTodo.addAll(list)
+    /**
+     * Activity 에서 호출할 메서드
+     */
+    fun itemDragListener(startDrag: MyTouchHelperCallback.ItemStartDragListener) {
+        this.onItemDragListener = startDrag
+    }
+//
+//    /*drag 가 시작될 때 drag 를 하도록 해야 하므로 리스너 생성*/
+//    interface OnStartDragListener {
+//        fun onStartDrag(viewHolder:TodoViewHolder)
 //    }
 
-//    override fun getFilter(): Filter {
-//        return exampleFilter
-//    }
-//
-//    inner class ExampleFilter : Filter() {
-//        override fun performFiltering(charSequence: CharSequence): FilterResults {
-//            val filterString = charSequence.toString()
-//            val results = FilterResults()
-//            Log.d(TAG, "charSequence : $charSequence")
-//
-//            //검색이 필요없을 경우를 위해 원본 배열을 복제
-//            val filteredList: ArrayList<Todo> = ArrayList<Todo>()
-//            //공백제외 아무런 값이 없을 경우 -> 원본 배열
-//            if (filterString.trim { it <= ' ' }.isEmpty()) {
-//                results.values = list
-//                results.count = list.size
-//
-//                return results
-//                //공백제외 2글자 이하인 경우 -> 이름으로만 검색
-//            } else {
-//                for (item in list) {
-//                    if (item.todo.contains(filterString)) {
-//                        filteredList.add(item)
-//                        results.values = filteredList
-//                        results.count = filteredList.size
-//
-//                    }
-//                }
-//                //그 외의 경우(공백제외 2글자 초과) -> 이름/전화번호로 검색
-//            }
-//
-//
-//
-//            return results
-//        }
-//
-//        @SuppressLint("NotifyDataSetChanged")
-//        override fun publishResults(charSequence: CharSequence?, filterResults: FilterResults) {
-//            list.clear()
-//            list.addAll(filterResults.values as ArrayList<Todo>)
-//            notifyDataSetChanged()
-//        }
-//    }
-    /*
-    *     private val exampleFilter: Filter = object : Filter() {
+    /**
+     * Item이 바뀌면 리스트에 적용
+     */
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
 
+        //collection.swap 을 통해 변경된 아이템을 교체하고
+        //notifyItemMoved 를 이용해서 아이템 변경을 알림림
+        Collections.swap(list, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
+    }
 
-        //background Thread 에서 자동으로
-        override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filterString = constraint.toString()
+    /**
+     * Drag and Drop하여 ViewHolder가 변경될 때 호출
+     */
+    override fun onDropAdapter() {
+        onItemDragListener?.onDropActivity(initList,mSampleList)
+    }
 
-            //검색이 필요없을 경우를 위해 원본 배열을 복제
-            val filteredList: ArrayList<Todo> = ArrayList<Todo>()
+    override fun onItemSwiped(position: Int) {
+        list.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
-            copylist = list as ArrayList<Todo>
-
-            Log.d(TAG, "필터로그 : 1")
-
-            Log.d(TAG, "검색값 : $constraint")
-
-            val results = FilterResults()
-            //공백 제외 아무런 값이 없을 경우 -> 원본 배열
-            if (filterString.trim { it <= ' ' }.isEmpty()) {
-                Log.d(TAG, "필터로그 : 2")
-
-//                result.values = filteredList
-//                result.count = filteredList.size
-
-//                filteredList.addAll(list)
-                results.values = list
-                results.count = list.size
-
-                return results
-
-
-            }
-
-            //값이 있을 경우
-            else {
-                Log.d(TAG, "필터로그 : 3")
-                val filterPattern =
-                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
-
-                for (item in list) {
-                    Log.d(TAG, "필터로그 : 4")
-                    //filter 대상 setting
-                    if (item.todo.contains(filterString)) {
-                        Log.d(TAG, "필터로그 : 5")
-                        Log.d(TAG, "검색필터: ${item.todo}")
-
-                        filteredList.add(item)
-
-                        //result.count = item
-
-                        Log.d(TAG, "검색 add list:  $filteredList")
-
-
-                        return results
-                    }
-
-                }
-            }
-            Log.d(TAG, "필터로그 : 6")
-            results.values = filteredList
-            results.count = filteredList.size
-
-            return results
-
-//
-//            Log.d(TAG,"검색 결과1: ${result.values}")
-//            Log.d(TAG,"검색 결과2: $result")
-//
-//            return result
-//            Log.d(TAG, "검색 결과1: ${result.values}")
-//            Log.d(TAG, "검색 결과2: $result")
-
-//            val result = FilterResults()
-
-        }
-
-
-        //UI Thread 에서 자동으로
-        @SuppressLint("NotifyDataSetChanged")
-        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-//            list.clear()
-//            // 리스트 클리어되고 add 되고 지우면 다시 리셋되야 하는데 안되고 그래로임,,,
-//            (results?.values as ArrayList<Todo>?)?.let {
-//
-//                list.addAll(it)
-//            }
-            filteredTodo.clear()
-            (results?.values as ArrayList<Todo>?)?.let { filteredTodo.addAll(it) }
-            notifyDataSetChanged()
-        }
-
-    }*/
+//    fun startDrag(listener: OnStartDragListener) {
+////        this.dragListener = listener
+////    }
 
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
 
         var timestamp = itemView.findViewById<TextView>(R.id.stamp)
         var content = itemView.findViewById<TextView>(R.id.content)
 
         fun onBind(data: Todo) {
+
+
             timestamp.text = data.stamp
             content.text = data.todo
 
@@ -190,6 +92,7 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
         }
 
         init {
+
 
             itemView.setOnClickListener {
                 onItemClick?.invoke(list[adapterPosition])
@@ -201,6 +104,7 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
                 return@setOnLongClickListener true
             }
         }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
@@ -216,93 +120,13 @@ class TodoAdapter(val context: Context) : RecyclerView.Adapter<TodoAdapter.TodoV
     override fun getItemCount(): Int {
         return list.size
     }
-
+//    fun startDrag(listener: OnStartDragListener) {
+//        this.dragListener = listener
+//    }
     fun update(newList: MutableList<Todo>) {
         this.list = newList
         notifyDataSetChanged()
     }
 
-
-//    interface ItemClickListener {
-//        fun onClick(view: View, position: Int, itemId: Long)
-//    }
-//
-//    private lateinit var itemClickListner: ItemClickListener
-//
-//    fun setItemClickListener(itemClickListener: ItemClickListener) {
-//        this.itemClickListner = itemClickListener
-//    }
-
-//    override fun getFilter(): Filter {
-//
-//        return exampleFilter
-//    }
-//
-//    private val exampleFilter: Filter = object : Filter() {
-//        //background Thread 에서 자동으로
-//        override fun performFiltering(constraint: CharSequence?): FilterResults {
-//
-//            val filterString = constraint.toString()
-//
-//            //검색이 필요없을 경우를 위해 원본 배열을 복제
-//            val filteredList = mutableListOf<Todo>()
-//
-//            val result = FilterResults()
-//
-//            Log.d(TAG, "검색값 : $constraint")
-//
-//            //공백 제외 아무런 값이 없을 경우 -> 원본 배열
-//            if (filterString.trim { it <= ' ' }.isEmpty()) {
-//
-//                result.values = list
-//                result.count = list.size
-//
-//                return result
-//            }
-//
-//            //값이 있을 경우
-//            else {
-//                val filterPattern =
-//                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
-//
-//                for (item in list) {
-//                    //filter 대상 setting
-//                    if (item.todo.contains(filterString)) {
-//                        Log.d(TAG, "검색필터: ${item.todo}")
-//                        filteredList.add(item)
-//
-//                        Log.d(TAG, "검색 add list:  $filteredList")
-//                        result.values = filteredList
-//                        result.count = filteredList.size
-//
-//
-//                    } else {
-//                        Toast.makeText(context, " 검색 필터링 결과 무", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
-//
-////            result.values = filteredList
-////            result.count=filteredList.size
-////
-////            Log.d(TAG,"검색 결과1: ${result.values}")
-////            Log.d(TAG,"검색 결과2: $result")
-////
-////            return result
-//            Log.d(TAG, "검색 결과1: ${result.values}")
-//            Log.d(TAG, "검색 결과2: $result")
-//
-//            return result
-//        }
-//
-//        //UI Thread 에서 자동으로
-//        @SuppressLint("NotifyDataSetChanged")
-//        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-//            list.clear()
-//            list.addAll(results?.values as ArrayList<Todo>)
-//            notifyDataSetChanged()
-//        }
-//
-//    }
 
 }

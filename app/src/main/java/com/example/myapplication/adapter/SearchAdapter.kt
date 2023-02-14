@@ -3,6 +3,7 @@ package com.example.myapplication.adapter
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.Log
@@ -13,8 +14,12 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.MemoActivity
 import com.example.myapplication.R
 import com.example.myapplication.dto.Todo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,23 +43,15 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
     var exampleFilter = ExampleFilter()
 
 
-    private val packageManager: PackageManager = context.packageManager
+    interface ItemClickListener {
+        fun onClick(view: View, position: Int)
+    }
 
-//    init {
-//        context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA).sortedBy { it.loadLabel(packageManager).toString() }.forEach { info ->
-//            if (info.packageName != context.packageName) {
-//                if (info.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
-//                    appList.add(info)
-//                    checkedAppList.add(list.contains(info.packageName))
-//                }
-//            }
-//        }
-//    }
+    private lateinit var itemClickListner: ItemClickListener
 
-//    init {
-//        //원본 리스트를 다 참조해야 함함
-//        appList.addAll(list)
-//    }
+    fun setItemClickListener(itemClickListener: ItemClickListener) {
+        this.itemClickListner = itemClickListener
+    }
 
     override fun getFilter(): Filter {
         return exampleFilter
@@ -105,99 +102,7 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
 
         }
     }
-    /*
-    *     private val exampleFilter: Filter = object : Filter() {
 
-
-        //background Thread 에서 자동으로
-        override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filterString = constraint.toString()
-
-            //검색이 필요없을 경우를 위해 원본 배열을 복제
-            val filteredList: ArrayList<Todo> = ArrayList<Todo>()
-
-            copylist = list as ArrayList<Todo>
-
-            Log.d(TAG, "필터로그 : 1")
-
-            Log.d(TAG, "검색값 : $constraint")
-
-            val results = FilterResults()
-            //공백 제외 아무런 값이 없을 경우 -> 원본 배열
-            if (filterString.trim { it <= ' ' }.isEmpty()) {
-                Log.d(TAG, "필터로그 : 2")
-
-//                result.values = filteredList
-//                result.count = filteredList.size
-
-//                filteredList.addAll(list)
-                results.values = list
-                results.count = list.size
-
-                return results
-
-
-            }
-
-            //값이 있을 경우
-            else {
-                Log.d(TAG, "필터로그 : 3")
-                val filterPattern =
-                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
-
-                for (item in list) {
-                    Log.d(TAG, "필터로그 : 4")
-                    //filter 대상 setting
-                    if (item.todo.contains(filterString)) {
-                        Log.d(TAG, "필터로그 : 5")
-                        Log.d(TAG, "검색필터: ${item.todo}")
-
-                        filteredList.add(item)
-
-                        //result.count = item
-
-                        Log.d(TAG, "검색 add list:  $filteredList")
-
-
-                        return results
-                    }
-
-                }
-            }
-            Log.d(TAG, "필터로그 : 6")
-            results.values = filteredList
-            results.count = filteredList.size
-
-            return results
-
-//
-//            Log.d(TAG,"검색 결과1: ${result.values}")
-//            Log.d(TAG,"검색 결과2: $result")
-//
-//            return result
-//            Log.d(TAG, "검색 결과1: ${result.values}")
-//            Log.d(TAG, "검색 결과2: $result")
-
-//            val result = FilterResults()
-
-        }
-
-
-        //UI Thread 에서 자동으로
-        @SuppressLint("NotifyDataSetChanged")
-        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-//            list.clear()
-//            // 리스트 클리어되고 add 되고 지우면 다시 리셋되야 하는데 안되고 그래로임,,,
-//            (results?.values as ArrayList<Todo>?)?.let {
-//
-//                list.addAll(it)
-//            }
-            filteredTodo.clear()
-            (results?.values as ArrayList<Todo>?)?.let { filteredTodo.addAll(it) }
-            notifyDataSetChanged()
-        }
-
-    }*/
 
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -236,6 +141,10 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
         holder.onBind(appList[position])
+//        holder.itemView.setOnClickListener {
+//            itemClickListner.onClick(it,position)
+//
+//        }
     }
 
     override fun getItemCount(): Int {
@@ -248,86 +157,7 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
     }
 
 
-//    interface ItemClickListener {
-//        fun onClick(view: View, position: Int, itemId: Long)
-//    }
-//
-//    private lateinit var itemClickListner: ItemClickListener
-//
-//    fun setItemClickListener(itemClickListener: ItemClickListener) {
-//        this.itemClickListner = itemClickListener
-//    }
 
-//    override fun getFilter(): Filter {
-//
-//        return exampleFilter
-//    }
-//
-//    private val exampleFilter: Filter = object : Filter() {
-//        //background Thread 에서 자동으로
-//        override fun performFiltering(constraint: CharSequence?): FilterResults {
-//
-//            val filterString = constraint.toString()
-//
-//            //검색이 필요없을 경우를 위해 원본 배열을 복제
-//            val filteredList = mutableListOf<Todo>()
-//
-//            val result = FilterResults()
-//
-//            Log.d(TAG, "검색값 : $constraint")
-//
-//            //공백 제외 아무런 값이 없을 경우 -> 원본 배열
-//            if (filterString.trim { it <= ' ' }.isEmpty()) {
-//
-//                result.values = list
-//                result.count = list.size
-//
-//                return result
-//            }
-//
-//            //값이 있을 경우
-//            else {
-//                val filterPattern =
-//                    constraint.toString().lowercase(Locale.getDefault()).trim { it <= ' ' }
-//
-//                for (item in list) {
-//                    //filter 대상 setting
-//                    if (item.todo.contains(filterString)) {
-//                        Log.d(TAG, "검색필터: ${item.todo}")
-//                        filteredList.add(item)
-//
-//                        Log.d(TAG, "검색 add list:  $filteredList")
-//                        result.values = filteredList
-//                        result.count = filteredList.size
-//
-//
-//                    } else {
-//                        Toast.makeText(context, " 검색 필터링 결과 무", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            }
-//
-////            result.values = filteredList
-////            result.count=filteredList.size
-////
-////            Log.d(TAG,"검색 결과1: ${result.values}")
-////            Log.d(TAG,"검색 결과2: $result")
-////
-////            return result
-//            Log.d(TAG, "검색 결과1: ${result.values}")
-//            Log.d(TAG, "검색 결과2: $result")
-//
-//            return result
-//        }
-//
-//        //UI Thread 에서 자동으로
-//        @SuppressLint("NotifyDataSetChanged")
-//        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-//            list.clear()
-//            list.addAll(results?.values as ArrayList<Todo>)
-//            notifyDataSetChanged()
-//        }
-//
-//    }
+
 
 }

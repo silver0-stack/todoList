@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import MyTouchHelperCallback
 import android.app.SearchManager
 import android.content.DialogInterface
 import android.content.Intent
@@ -13,6 +14,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.adapter.TodoAdapter
 import com.example.myapplication.databinding.ActivityMainBinding
@@ -32,6 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     val current = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("a h:mm")
+
+
 
 
 
@@ -80,22 +84,6 @@ class MainActivity : AppCompatActivity() {
         todoViewModel.todTodoList.observe(this) {
             todoAdapter.update(it)
 
-
-//            // 1) JsonArray
-//            val jsonArr = JSONArray()
-//            for(i in it){
-//                jsonArr.put(i)
-//            }
-//
-//            // 2) toString()
-//            val result=jsonArr.toString()
-//
-//            // 3) SharedPreferences
-//            val sharedPref = getPreferences(Context.MODE_PRIVATE) ?: return@observe
-//            with (sharedPref.edit()) {
-//                putString("search_list", result)
-//                apply()
-//            }
         }
 
 
@@ -104,26 +92,22 @@ class MainActivity : AppCompatActivity() {
 
         binding.todolist.layoutManager = LinearLayoutManager(this)
         binding.todolist.adapter = todoAdapter
-        //binding.todolist.setHasFixedSize(true)
 
+        val callback=MyTouchHelperCallback(todoAdapter)
+        val touchHelper=ItemTouchHelper(callback)
+        // ItemTouchHelper를 RecyclerView에 연결
+        touchHelper.attachToRecyclerView(binding.todolist)
 
-//        todoAdapter.setItemClickListener(object : TodoAdapter.ItemClickListener {
-//            override fun onClick(view: View, position: Int, itemId: Long) {
-//                Toast.makeText(this@TodayActivity, "$itemId", Toast.LENGTH_SHORT).show()
-//
-//                CoroutineScope(Dispatchers.IO).launch {
-//                    runOnUiThread {
-//                        val todo = todoViewModel.getOne(itemId)
-//
-//                        val intent = Intent(this@TodayActivity, MemoActivity::class.java).apply {
-//                            putExtra("item", todo)
-//                        }
-//                        requestActivity.launch(intent)
-//                    }
-//
-//                }
-//            }
-//        })
+        todoAdapter.itemDragListener(object : MyTouchHelperCallback.ItemStartDragListener {
+            override fun onDropActivity(initList: ArrayList<Todo>, changeList: ArrayList<Todo>) {
+                // TODO : 드랍됐을 때 처리
+                println(initList) // 최초 리스트
+                println(changeList) // Drag and Drop 이후 리스트
+                println("------ \n")
+            }
+
+      })
+
 
         /*메모장 이동*/
         todoAdapter.onItemClick = {
@@ -248,58 +232,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreateOptionsMenu(menu)
 
-        val searchItem: MenuItem? = menu?.findItem(R.id.search)
 
-//
-//
-//        //검색을 누른 후 옵션 아이콘을 누른 후 검색이 끝나면 검색 아이콘이 사라져서 넣음
-//        menu.findItem(R.id.search)
-//            ?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-//                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-//                    //   menu.findItem(R.id.add)!!.isVisible=false
-//
-//                    //검색뷰 클릭 시 가로폭 최대치로 설정
-//                    searchView.maxWidth = Integer.MAX_VALUE
-//                    //검색 버튼 클릭했을 때 서치뷰에 힌트 추가
-//                    searchView.queryHint = "검색..."
-//
-//                    return true
-//                }
-//
-//                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-//                    invalidateOptionsMenu()
-//                    return true
-//                }
-//
-//            })
-//
-////        //검색뷰 클릭 시 가로폭 최대치로 설정
-////        searchView.maxWidth = Integer.MAX_VALUE
-////        //검색 버튼 클릭했을 때 서치뷰에 힌트 추가
-////        searchView.queryHint = "검색..."
-//
-//
-//        /*검색 가능한 구성을 SearchView 와 연결*/
-//        //서치뷰와 searchable 설정 결합시키기
-//
-//        searchView.apply {
-//            setSearchableInfo(searchManager.getSearchableInfo(componentName))
-//            setIconifiedByDefault(true)
-//
-//            this.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//                //검색버튼 입력시 호출, 검색버튼이 없으므로 사용하지 않음
-//                override fun onQueryTextSubmit(query: String?): Boolean {
-//                    todoAdapter.getFilter().filter(query)
-//                    return true
-//                }
-//
-//                //텍스트 입력/수정 시에 호출
-//                override fun onQueryTextChange(newText: String?): Boolean {
-//                    return true
-//                }
-//
-//            })
-//        }
         return false
     }
 

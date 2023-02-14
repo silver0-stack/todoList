@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:background="#FAFAFA"
     android:padding="10dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:theme="@style/itemBg">
 
     <TextView
         android:id="@+id/stamp"
@@ -16,7 +16,7 @@
     <TextView
         android:id="@+id/content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_gravity="center"
         android:textSize="20sp" />
 

@@ -12,6 +12,22 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
-
+        <item name="android:tintMode">@color/white</item>
+        <item name="android:iconTint">@color/white</item>
+        <item name="android:fillColor">@color/white</item>
     </style>
+
+    <!-- Customize your theme here. -->
+    <style name="itemBg">
+        <item name="android:background">@drawable/item_bg_night</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="colorControlNormal">@color/white</item>
+    </style>
+
+    <style name="icon">
+        <item name="android:tint">@color/white</item>
+        <item name="android:fillColor">@color/white</item>
+        <item name="android:iconTint">@color/white</item>
+    </style>
+
 </resources>
