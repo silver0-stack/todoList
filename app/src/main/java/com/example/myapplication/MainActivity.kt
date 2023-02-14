@@ -3,7 +3,6 @@ package com.example.myapplication
 import android.app.SearchManager
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -16,28 +15,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.adapter.TodoAdapter
-import com.example.myapplication.databinding.ActivityTodayBinding
+import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.dto.Todo
 import com.example.myapplication.viewmodel.TodoViewModel
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.reflect.Type
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-class TodayActivity : AppCompatActivity() {
-    lateinit var binding: ActivityTodayBinding
+class MainActivity : AppCompatActivity() {
+    lateinit var binding: ActivityMainBinding
     lateinit var todoAdapter: TodoAdapter
     lateinit var todoViewModel: TodoViewModel
 
     val current = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("a h:mm")
-    val timestamp = current.format(formatter)
 
 
 
@@ -47,8 +41,14 @@ class TodayActivity : AppCompatActivity() {
                 val todo = it.data?.getSerializableExtra("todo") as Todo
 
                 when (it.data?.getIntExtra("flag", -1)) {
+                    /*추가한 후*/
                     0 -> {
-
+                        CoroutineScope(Dispatchers.IO).launch {
+                            runOnUiThread {
+                                todoViewModel.insert(todo)
+                            }
+                        }
+                        Toast.makeText(this, "추가되었습니다", Toast.LENGTH_SHORT).show()
                     }
                     /*수정한 후*/
                     1 -> {
@@ -65,11 +65,11 @@ class TodayActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTodayBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
-        val searchIntent =Intent(this,SearchActivity::class.java)
+        val searchIntent = Intent(this, SearchActivity::class.java)
 
 
         todoViewModel = ViewModelProvider(this)[TodoViewModel::class.java]
@@ -128,8 +128,8 @@ class TodayActivity : AppCompatActivity() {
         /*메모장 이동*/
         todoAdapter.onItemClick = {
             CoroutineScope(Dispatchers.IO).launch {
-                val intent = Intent(this@TodayActivity, MemoActivity::class.java)
-                intent.putExtra("item", it)
+                val intent = Intent(this@MainActivity, MemoActivity::class.java)
+                intent.putExtra("item_update", it)
                 requestActivity.launch(intent)
             }
 
@@ -138,7 +138,7 @@ class TodayActivity : AppCompatActivity() {
         todoAdapter.onItemLongClick = {
             CoroutineScope(Dispatchers.IO).launch {
                 runOnUiThread {
-                    val builder = AlertDialog.Builder(this@TodayActivity)
+                    val builder = AlertDialog.Builder(this@MainActivity)
 
                     builder
                         .setTitle("이 메모를 삭제하시겠습니까?")
@@ -203,30 +203,37 @@ class TodayActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.add -> {
-                val todo = Todo(0, timestamp, "")
+                val timestamp = current.format(formatter)
+                val todo = Todo(0, timestamp, " ")
                 CoroutineScope(Dispatchers.IO).launch {
-                                /*viewModel -> todoRepository -> todoDao 순으로 타고 들어가 데이터베이스에 저장*/
-                                todoViewModel.insert(todo)
-                            }
-                            Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
+                    /*viewModel -> todoRepository -> todoDao 순으로 타고 들어가 데이터베이스에 저장*/
 
-                            true
-                        }
-                        R.id.search -> {
-                            Toast.makeText(this, "search menu clicked!", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this,SearchActivity::class.java))
-                            true
-                        }
-
-                        else -> super.onOptionsItemSelected(item)
-                    }
+                    //todoViewModel.insert(todo)
+                    val intent = Intent(this@MainActivity, InsertActivity::class.java)
+                    intent.putExtra("item_insert", todo)
+                    requestActivity.launch(intent)
                 }
 
-                private fun handleIntent(intent: Intent?) {
+                //Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
 
-                    if (Intent.ACTION_SEARCH == intent!!.action) {
-                        val query = intent.getStringExtra(SearchManager.QUERY)
-                        //use the query to search your data somehow
+                true
+            }
+
+            R.id.search -> {
+                Toast.makeText(this, "search menu clicked!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, SearchActivity::class.java))
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun handleIntent(intent: Intent?) {
+
+        if (Intent.ACTION_SEARCH == intent!!.action) {
+            val query = intent.getStringExtra(SearchManager.QUERY)
+            //use the query to search your data somehow
         }
     }
 
@@ -236,12 +243,12 @@ class TodayActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-                val inflater: MenuInflater = menuInflater
-                inflater.inflate(R.menu.menu, menu)
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu, menu)
 
-                super.onCreateOptionsMenu(menu)
+        super.onCreateOptionsMenu(menu)
 
-                val searchItem: MenuItem? = menu?.findItem(R.id.search)
+        val searchItem: MenuItem? = menu?.findItem(R.id.search)
 
 //
 //
@@ -293,9 +300,8 @@ class TodayActivity : AppCompatActivity() {
 //
 //            })
 //        }
-                return false
-            }
-
+        return false
+    }
 
 
 }

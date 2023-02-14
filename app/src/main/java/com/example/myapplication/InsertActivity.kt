@@ -4,14 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.adapter.TodoAdapter
 import com.example.myapplication.databinding.ActivityWritingBinding
 import com.example.myapplication.dto.Todo
-import com.example.myapplication.viewmodel.TodoViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class MemoActivity : AppCompatActivity() {
+class InsertActivity : AppCompatActivity() {
     lateinit var binding: ActivityWritingBinding
     private var todo: Todo? = null
     private var backBtnTime:Long=0
@@ -27,7 +25,7 @@ class MemoActivity : AppCompatActivity() {
         binding = ActivityWritingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        todo = intent.getSerializableExtra("item_update") as Todo?
+        todo = intent.getSerializableExtra("item_insert") as Todo?
         binding.writing.setText(todo!!.todo)
 
 
@@ -44,13 +42,13 @@ class MemoActivity : AppCompatActivity() {
                 val intent = Intent().apply {
                     putExtra("todo", todo)
                     // MainActivity 로 다시 날려줌
-                    putExtra("flag", 1)
+                    putExtra("flag", 0)
                 }
                 setResult(RESULT_OK, intent)
                 finish()
             }else{
                 backBtnTime=curTime
-                Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.", Toast.LENGTH_SHORT).show()
 
                 binding.writing.isCursorVisible=false
 
@@ -74,13 +72,13 @@ class MemoActivity : AppCompatActivity() {
             val intent = Intent().apply {
                 putExtra("todo", todo)
                 // MainActivity 로 다시 날려줌
-                putExtra("flag", 1)
+                putExtra("flag", 0)
             }
             setResult(RESULT_OK, intent)
             finish()
         }else{
             backBtnTime=curTime
-            Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.", Toast.LENGTH_SHORT).show()
 
             binding.writing.isCursorVisible=false
         }

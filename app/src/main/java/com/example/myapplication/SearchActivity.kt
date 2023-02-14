@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -33,7 +34,7 @@ class SearchActivity : AppCompatActivity() {
 
 
         todoViewModel.todTodoList.observe(this) {
-            searchAdapter=SearchAdapter(this, it)
+            searchAdapter = SearchAdapter(this, it)
             searchAdapter.update(it)
 
 
@@ -44,22 +45,24 @@ class SearchActivity : AppCompatActivity() {
 
         val searchViewTextListener: SearchView.OnQueryTextListener =
             object : SearchView.OnQueryTextListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onQueryTextSubmit(query: String?): Boolean {
 
+                    searchAdapter.filter.filter(query)
+                    searchAdapter.notifyDataSetChanged()
+                    binding.searchView.clearFocus()
                     return false
                 }
 
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onQueryTextChange(newText: String?): Boolean {
 
-                            searchAdapter.filter.filter(newText)
-
-
+                    searchAdapter.filter.filter(newText)
+                    searchAdapter.notifyDataSetChanged()
                     return false
                 }
 
             }
-
-
 
 
         //검색뷰에 바로 커서 적용

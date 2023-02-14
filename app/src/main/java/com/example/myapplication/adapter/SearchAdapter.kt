@@ -3,6 +3,8 @@ package com.example.myapplication.adapter
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.dto.Todo
+import java.util.*
 import kotlin.collections.ArrayList
 
 class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
@@ -22,14 +25,36 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
     var onItemLongClick: ((Todo) -> Unit)? = null
     var onItemClick: ((Todo) -> Unit)? = null
 
-    var filteredTodo = ArrayList<Todo>()
+    //var filteredTodo = ArrayList<Todo>()
+
+    val appList = arrayListOf<Todo>()
+
+
+
+    //이 full list 는 서치뷰의 모든 타이핑을 삭제했을 때를 위함임
+    //그럴 때는 full form 으로 돌아감
+    val appListFull = ArrayList<Todo>(appList)
 
     var exampleFilter = ExampleFilter()
 
-    init {
-        //원본 리스트를 다 참조해야 함함
-        filteredTodo.addAll(list)
-    }
+
+    private val packageManager: PackageManager = context.packageManager
+
+//    init {
+//        context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA).sortedBy { it.loadLabel(packageManager).toString() }.forEach { info ->
+//            if (info.packageName != context.packageName) {
+//                if (info.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
+//                    appList.add(info)
+//                    checkedAppList.add(list.contains(info.packageName))
+//                }
+//            }
+//        }
+//    }
+
+//    init {
+//        //원본 리스트를 다 참조해야 함함
+//        appList.addAll(list)
+//    }
 
     override fun getFilter(): Filter {
         return exampleFilter
@@ -37,47 +62,46 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
 
     inner class ExampleFilter : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
-            val filterString = charSequence.toString()
-            val results = FilterResults()
-            Log.d(TAG, "charSequence : $charSequence")
-
-
-            //검색이 필요없을 경우를 위해 원본 배열을 복제
-            val filteredList = ArrayList<Todo>()
+            val filterPattern = charSequence.toString().lowercase(Locale.getDefault()).trim()
+            val filteredList: ArrayList<Todo> = ArrayList()
+            Log.d(TAG, "필터 텍스트 : $charSequence")
 
             //공백제외 아무런 값이 없을 경우 -> 원본 배열
+            if (charSequence == null || charSequence.isEmpty()) {
+//                results.values = list
+//                results.count = list.size
 
-            TODO("서치뷰가 비었을 때 리스트가 다 지워지는 이슈")
-            if (filterString.isEmpty()) {
-
-                results.values = filteredTodo
-                results.count =filteredTodo.size
-                return results
-
-                //공백제외 2글자 이하인 경우 -> 이름으로만 검색
+                //원본 리스트를 다 참조해야 함함
+                filteredList.addAll(appListFull)
             } else {
+                //무언가 타이핑해서 검색했을 때
+                //
+                Log.d(TAG, "필터 당하는: $list")
                 for (item in list) {
-                    if (item.todo.contains(filterString)) {
+                    if (item.todo.lowercase(Locale.getDefault()).contains(filterPattern)) {
+                        Log.d(TAG, "필터 값: $item")
                         filteredList.add(item)
-
-                        results.values = filteredList
-                        results.count = filteredList.size
-
+//                        results.values = filteredList
+//                        results.count = filteredList.size
                     }
                 }
                 //그 외의 경우(공백제외 2글자 초과) -> 이름/전화번호로 검색
             }
-
+            Log.d(TAG, "필터 리스트: $filteredList")
+            val results = FilterResults()
+            results.values = filteredList
             return results
+
         }
 
         @SuppressLint("NotifyDataSetChanged")
+        @Suppress("UNCHECKED_CAST")
         override fun publishResults(charSequence: CharSequence?, filterResults: FilterResults) {
-            (filterResults.values as ArrayList<Todo>?)?.let {
-                filteredTodo.clear()
-                filteredTodo.addAll(it)
-                notifyDataSetChanged()
-            }
+            appList.clear()
+            Log.d("publishResults", (filterResults.values as ArrayList<*>).toString())
+            (filterResults.values as ArrayList<Todo>?)?.let { appList.addAll(it) }
+
+            notifyDataSetChanged()
 
         }
     }
@@ -193,12 +217,12 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
         init {
 
             itemView.setOnClickListener {
-                onItemClick?.invoke(filteredTodo[adapterPosition])
+                onItemClick?.invoke(appList[adapterPosition])
                 return@setOnClickListener
             }
 
             itemView.setOnLongClickListener {
-                onItemLongClick?.invoke(filteredTodo[adapterPosition])
+                onItemLongClick?.invoke(appList[adapterPosition])
                 return@setOnLongClickListener true
             }
         }
@@ -211,15 +235,15 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
     }
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
-        holder.onBind(filteredTodo[position])
+        holder.onBind(appList[position])
     }
 
     override fun getItemCount(): Int {
-        return filteredTodo.size
+        return appList.size
     }
 
     fun update(newList: MutableList<Todo>) {
-        this.filteredTodo = newList as ArrayList<Todo>
+        //this.appList = newList as ArrayList<Todo>
         notifyDataSetChanged()
     }
 
