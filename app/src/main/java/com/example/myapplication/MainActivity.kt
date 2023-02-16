@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
                                 todoViewModel.insert(todo)
                             }
                         }
-                        Toast.makeText(this, "추가되었습니다", Toast.LENGTH_SHORT).show()
                     }
                     /*수정한 후*/
                     1 -> {
@@ -73,7 +72,6 @@ class MainActivity : AppCompatActivity() {
                                 todoViewModel.update(todo)
                             }
                         }
-                        Toast.makeText(this, "수정되었습니다", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -115,8 +113,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        handleIntent(intent)
-
         //툴바 설정
         setSupportActionBar(binding.toolbar)
 
@@ -130,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         /**
          *  백그라운드 컬러 투명 (이걸 해줘야 background 가 설정해준 모양으로 변함)
-        */
+         */
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         dialog.setCancelable(true)
@@ -152,6 +148,7 @@ class MainActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 todoViewModel.delete(Todo)
             }
+            Toast.makeText(this@MainActivity, "삭제되었습니다", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
 
@@ -199,7 +196,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.search -> {
-                Toast.makeText(this, "search menu clicked!", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, SearchActivity::class.java))
                 true
             }
@@ -208,17 +204,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleIntent(intent: Intent?) {
-
-        if (Intent.ACTION_SEARCH == intent!!.action) {
-            val query = intent.getStringExtra(SearchManager.QUERY)
-            //use the query to search your data somehow
-        }
-    }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleIntent(intent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -226,8 +214,6 @@ class MainActivity : AppCompatActivity() {
         inflater.inflate(R.menu.menu, menu)
 
         super.onCreateOptionsMenu(menu)
-
-
         return false
     }
 

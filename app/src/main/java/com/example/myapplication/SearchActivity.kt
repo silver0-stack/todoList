@@ -1,8 +1,14 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Window
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -39,7 +45,6 @@ class SearchActivity : AppCompatActivity() {
                                 todoViewModel.insert(todo)
                             }
                         }
-                        Toast.makeText(this, "추가되었습니다", Toast.LENGTH_SHORT).show()
                     }
                     /*수정한 후*/
                     1 -> {
@@ -48,7 +53,6 @@ class SearchActivity : AppCompatActivity() {
                                 todoViewModel.update(todo)
                             }
                         }
-                        Toast.makeText(this, "수정되었습니다", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -70,7 +74,7 @@ class SearchActivity : AppCompatActivity() {
 
 
 
-        todoViewModel.todTodoList.observe(this) {
+        todoViewModel.todTodoList.observe(this) { it ->
             searchAdapter = SearchAdapter(this, it)
             searchAdapter.update(it)
 
@@ -80,11 +84,7 @@ class SearchActivity : AppCompatActivity() {
 
             /*메모장 이동*/
             searchAdapter.onItemClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val intent = Intent(this@SearchActivity, MemoActivity::class.java)
-                    intent.putExtra("item_update", it)
-                    requestActivity.launch(intent)
-                }
+                showDialog(it)
 
             }
 
@@ -119,6 +119,44 @@ class SearchActivity : AppCompatActivity() {
 
 
     }
+
+
+    private fun showDialog(Todo: Todo) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        /**
+         *  백그라운드 컬러 투명 (이걸 해줘야 background 가 설정해준 모양으로 변함)
+         */
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.setCancelable(true)
+        dialog.setContentView(R.layout.custom_dialog)
+        val body = dialog.findViewById(R.id.todo) as TextView
+        body.text = Todo.todo
+        val editBtn = dialog.findViewById(R.id.btn_edit) as Button
+        val deleteBtn = dialog.findViewById(R.id.btn_delete) as Button
+
+        editBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val intent = Intent(this@SearchActivity, MemoActivity::class.java)
+                intent.putExtra("item_update", Todo)
+                requestActivity.launch(intent)
+            }
+            dialog.dismiss()
+        }
+        deleteBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                todoViewModel.delete(Todo)
+            }
+            Toast.makeText(this@SearchActivity, "삭제되었습니다", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
+    }
+
 }
 
 
