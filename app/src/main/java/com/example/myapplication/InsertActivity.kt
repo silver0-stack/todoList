@@ -48,7 +48,7 @@ class InsertActivity : AppCompatActivity() {
                 finish()
             }else{
                 backBtnTime=curTime
-                Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"한번 더 누르면 목록으로 이동합니다.", Toast.LENGTH_SHORT).show()
 
                 binding.writing.isCursorVisible=false
 
@@ -78,7 +78,7 @@ class InsertActivity : AppCompatActivity() {
             finish()
         }else{
             backBtnTime=curTime
-            Toast.makeText(this,"한번 더 누르면 목록으로 갑니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"한번 더 누르면 목록으로 이동합니다.", Toast.LENGTH_SHORT).show()
 
             binding.writing.isCursorVisible=false
         }

@@ -1,18 +1,28 @@
 package com.example.myapplication
 
-import MyTouchHelperCallback
+
+import android.app.Dialog
 import android.app.SearchManager
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.Window
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,8 +33,11 @@ import com.example.myapplication.viewmodel.TodoViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.security.AccessController.getContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,8 +49,7 @@ class MainActivity : AppCompatActivity() {
     val formatter = DateTimeFormatter.ofPattern("a h:mm")
 
 
-
-
+    private var list = mutableListOf<Todo>()
 
     private val requestActivity =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -87,60 +99,19 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-        todoAdapter = TodoAdapter(this)
+        todoAdapter = TodoAdapter(this, todoViewModel)
 
         binding.todolist.layoutManager = LinearLayoutManager(this)
         binding.todolist.adapter = todoAdapter
 
-        val callback=MyTouchHelperCallback(todoAdapter)
-        val touchHelper=ItemTouchHelper(callback)
-        // ItemTouchHelper를 RecyclerView에 연결
-        touchHelper.attachToRecyclerView(binding.todolist)
-
-        todoAdapter.itemDragListener(object : MyTouchHelperCallback.ItemStartDragListener {
-            override fun onDropActivity(initList: ArrayList<Todo>, changeList: ArrayList<Todo>) {
-                // TODO : 드랍됐을 때 처리
-                println(initList) // 최초 리스트
-                println(changeList) // Drag and Drop 이후 리스트
-                println("------ \n")
-            }
-
-      })
-
 
         /*메모장 이동*/
         todoAdapter.onItemClick = {
-            CoroutineScope(Dispatchers.IO).launch {
-                val intent = Intent(this@MainActivity, MemoActivity::class.java)
-                intent.putExtra("item_update", it)
-                requestActivity.launch(intent)
-            }
-
+            showDialog(it)
         }
         /*아이템 삭제*/
         todoAdapter.onItemLongClick = {
-            CoroutineScope(Dispatchers.IO).launch {
-                runOnUiThread {
-                    val builder = AlertDialog.Builder(this@MainActivity)
-
-                    builder
-                        .setTitle("이 메모를 삭제하시겠습니까?")
-                        .setMessage(it.todo)
-                        .setPositiveButton("삭제") { dialogInterface: DialogInterface, i: Int ->
-                            todoViewModel.delete(it)
-
-                        }
-                        .setNegativeButton("유지") { dialogInterface: DialogInterface, i: Int ->
-                            dialogInterface.dismiss()
-                        }
-
-                    // 다이얼로그를 띄워주기
-                    builder.create().show()
-                }
-            }
-
-
+            showDialog(it)
         }
 
 
@@ -150,41 +121,46 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
 
-        binding.nav.itemIconTintList = null
-
-        //Drawer 토글버튼 생성
-        val barDrawerToggle = ActionBarDrawerToggle(
-            this,
-            binding.layoutDrawer,
-            binding.toolbar,
-            R.string.app_name,
-            R.string.app_name
-        )
-        //삼선아이콘 모양으로 보이기, 동기맞춤
-        barDrawerToggle.syncState()
-        //삼선아이콘 화살표 아이콘 자동 변환
-        binding.layoutDrawer.addDrawerListener(barDrawerToggle)
+    }
 
 
-        //네비게시션뷰의 아이템 클릭 시
-        binding.nav.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.login -> {
-                    Toast.makeText(this, "로그인 클릭", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> {
-                    binding.layoutDrawer.closeDrawer(binding.nav)
-                    false
-                }
+    private fun showDialog(Todo: Todo) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
+        /**
+         *  백그라운드 컬러 투명 (이걸 해줘야 background 가 설정해준 모양으로 변함)
+        */
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog.setCancelable(true)
+        dialog.setContentView(R.layout.custom_dialog)
+        val body = dialog.findViewById(R.id.todo) as TextView
+        body.text = Todo.todo
+        val editBtn = dialog.findViewById(R.id.btn_edit) as Button
+        val deleteBtn = dialog.findViewById(R.id.btn_delete) as Button
+
+        editBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                val intent = Intent(this@MainActivity, MemoActivity::class.java)
+                intent.putExtra("item_update", Todo)
+                requestActivity.launch(intent)
             }
-
+            dialog.dismiss()
         }
+        deleteBtn.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                todoViewModel.delete(Todo)
+            }
+            dialog.dismiss()
+        }
+
+        dialog.show()
 
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         return when (item.itemId) {
             R.id.add -> {
                 val timestamp = current.format(formatter)
@@ -198,7 +174,26 @@ class MainActivity : AppCompatActivity() {
                     requestActivity.launch(intent)
                 }
 
-                //Toast.makeText(this, "추가되었습니다.", Toast.LENGTH_SHORT).show()
+
+                true
+            }
+
+            R.id.mode -> {
+                when (resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                    Configuration.UI_MODE_NIGHT_YES -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                    Configuration.UI_MODE_NIGHT_NO -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
+                    }
+                    Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_UNSPECIFIED)
+                    }
+                    else -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    }
+                }
 
                 true
             }

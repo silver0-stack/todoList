@@ -24,7 +24,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var todoViewModel: TodoViewModel
     lateinit var todoAdapter: TodoAdapter
     lateinit var searchAdapter: SearchAdapter
-    lateinit var todo:MutableList<Todo>
+    lateinit var todo: MutableList<Todo>
 
     private val requestActivity =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -60,12 +60,12 @@ class SearchActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-
-        todoAdapter = TodoAdapter(this)
-
-
-
         todoViewModel = ViewModelProvider(this)[TodoViewModel::class.java]
+        todoAdapter = TodoAdapter(this, todoViewModel)
+
+
+
+
 
 
 
@@ -86,38 +86,33 @@ class SearchActivity : AppCompatActivity() {
                     requestActivity.launch(intent)
                 }
 
-        }
-
-        val searchViewTextListener: SearchView.OnQueryTextListener =
-            object : SearchView.OnQueryTextListener {
-                @SuppressLint("NotifyDataSetChanged")
-                override fun onQueryTextSubmit(query: String?): Boolean {
-
-                    searchAdapter.filter.filter(query)
-                    searchAdapter.notifyDataSetChanged()
-                    binding.searchView.clearFocus()
-                    return false
-                }
-
-                @SuppressLint("NotifyDataSetChanged")
-                override fun onQueryTextChange(newText: String?): Boolean {
-
-                    searchAdapter.filter.filter(newText)
-                    searchAdapter.notifyDataSetChanged()
-                    return false
-                }
-
             }
 
+            val searchViewTextListener: SearchView.OnQueryTextListener =
+                object : SearchView.OnQueryTextListener {
+                    @SuppressLint("NotifyDataSetChanged")
+                    override fun onQueryTextSubmit(query: String?): Boolean {
 
-        //검색뷰에 바로 커서 적용
-        binding.searchView.onActionViewExpanded()
-        binding.searchView.setOnQueryTextListener(searchViewTextListener)
+                        searchAdapter.filter.filter(query)
+                        searchAdapter.notifyDataSetChanged()
+                        binding.searchView.clearFocus()
+                        return false
+                    }
+
+                    @SuppressLint("NotifyDataSetChanged")
+                    override fun onQueryTextChange(newText: String?): Boolean {
+
+                        searchAdapter.filter.filter(newText)
+                        searchAdapter.notifyDataSetChanged()
+                        return false
+                    }
+
+                }
 
 
-        val files=todoViewModel.todTodoList
-
-
+            //검색뷰에 바로 커서 적용
+            binding.searchView.onActionViewExpanded()
+            binding.searchView.setOnQueryTextListener(searchViewTextListener)
 
 
         }

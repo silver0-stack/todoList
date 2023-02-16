@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class TodoViewModel: ViewModel() {
 
-    val todTodoList:LiveData<MutableList<Todo>>
+    var todTodoList:LiveData<MutableList<Todo>>
     private val todoRepository: TodoRepository =TodoRepository.get()
 
     init {

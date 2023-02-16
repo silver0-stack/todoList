@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
+class SearchAdapter(val context: Context, var list: MutableList<Todo>) :
     RecyclerView.Adapter<SearchAdapter.TodoViewHolder>(),
     Filterable {
 
@@ -141,10 +141,7 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
 
     override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
         holder.onBind(appList[position])
-//        holder.itemView.setOnClickListener {
-//            itemClickListner.onClick(it,position)
-//
-//        }
+
     }
 
     override fun getItemCount(): Int {
@@ -152,7 +149,7 @@ class SearchAdapter(val context: Context, val list: MutableList<Todo>) :
     }
 
     fun update(newList: MutableList<Todo>) {
-        //this.appList = newList as ArrayList<Todo>
+        this.list= newList as ArrayList<Todo>
         notifyDataSetChanged()
     }
 

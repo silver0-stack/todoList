@@ -2,19 +2,26 @@
     <!-- Base application theme. -->
     <style name="Theme.MyApplication" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimary">#424242</item>
+
+
         <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
+
+        <!-- 커서 컬러-->
+        <item name="colorSecondary">@color/white</item>
+        <item name="colorSecondaryVariant">@color/white</item>
+
+
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
         <!-- Customize your theme here. -->
-        <item name="android:tintMode">@color/white</item>
-        <item name="android:iconTint">@color/white</item>
-        <item name="android:fillColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:navigationBarColor">@color/black</item>
     </style>
 
     <!-- Customize your theme here. -->
@@ -24,10 +31,18 @@
         <item name="colorControlNormal">@color/white</item>
     </style>
 
-    <style name="icon">
+    <style name="MyActionBarTheme" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/white</item>
         <item name="android:tint">@color/white</item>
         <item name="android:fillColor">@color/white</item>
         <item name="android:iconTint">@color/white</item>
     </style>
 
+
+
+
+    <style name="customDialog">
+        <item name="android:background">@drawable/dialog_background_night</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>
